@@ -1,0 +1,44 @@
+# Example development dockerfile
+#
+# VERSION               0.0.1
+FROM php:7.1-apache
+MAINTAINER  Riccardo De Leo <r@rdeleo.com>
+
+ARG localIp
+ARG fileConf
+
+# Packages
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get upgrade -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y  curl \
+    git libmcrypt-dev libbz2-dev libzip-dev
+
+
+# PHP Extensions
+RUN docker-php-ext-install mcrypt zip bz2 mbstring pdo pdo_mysql pcntl
+
+# Install XDebug
+RUN yes | pecl install xdebug-2.5.0 \
+    && docker-php-ext-enable xdebug
+
+RUN echo "xdebug.idekey=PHPSTORM" >> /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.default_enable=0" >> /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.remote_enable=1" >> /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.remote_autostart=0" >> /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.remote_connect_back=0" >> /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.remote_port=9000" >> /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.profiler_enable=0" >> /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.remote_host=$localIp" >> /usr/local/etc/php/conf.d/xdebug.ini
+
+RUN a2enmod rewrite
+
+# RUN service apache2 restart
+
+ADD . /var/www/html
+WORKDIR /var/www/html
+
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN composer install
+
+COPY $fileConf /etc/apache2/sites-available/000-default.conf
+RUN ln -sf ../sites-available/000-default.conf /etc/apache2/sites-enabled/000-default.conf
