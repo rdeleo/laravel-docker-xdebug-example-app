@@ -1,0 +1,5 @@
+# Example development dockerfile
+#
+# VERSION               0.0.1
+FROM        php:7.1-alpine
+MAINTAINER  Riccardo De Leo <riccardo.deleo@covianalytics.com>

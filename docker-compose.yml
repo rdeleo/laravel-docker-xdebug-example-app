@@ -1,0 +1,38 @@
+version: '2'
+
+services:
+  web:
+    build:
+      dockerfile: ./env/dev/web/Dockerfile-web-u16.04-dev
+      context: .
+      args:
+        - localIp=192.168.1.70
+        - fileConf=./env/dev/web/00-default.conf
+    volumes:
+      - ./:/var/www/html:rw
+    links:
+      - mariadb
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_URL=http://app.dev
+      - APP_KEY=base64:QS0A+0O5LVy4v226TGfJcBiQpw/slzHYP1hEcMDz1iU=
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_DATABASE=password
+      - DB_USERNAME=root
+      - DB_PASSWORD=demo
+    ports:
+      - 7077:80
+
+  mariadb:
+    image: mariadb:10.1
+    environment:
+      - MYSQL_ROOT_PASSWORD=demo
+      - MYSQL_DATABASE=appdb
+      - MYSQL_USER=laravel
+      - MYSQL_PASSWORD=password
+    volumes:
+      - /var/lib/mysql
+    ports:
+      - 3306:3306
