@@ -6,7 +6,7 @@ services:
       dockerfile: ./env/dev/web/Dockerfile-web-u16.04-dev
       context: .
       args:
-        - localIp=192.168.1.70
+        - localIp=192.168.1.72
         - fileConf=./env/dev/web/00-default.conf
     volumes:
       - ./:/var/www/html:rw
@@ -35,4 +35,4 @@ services:
     volumes:
       - /var/lib/mysql
     ports:
-      - 3306:3306
+      - 3309:3306

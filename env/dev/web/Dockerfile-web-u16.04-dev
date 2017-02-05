@@ -27,15 +27,17 @@ RUN echo "xdebug.idekey=PHPSTORM" >> /etc/php/7.0/mods-available/xdebug.ini \
     && echo "xdebug.profiler_enable=0" >> /etc/php/7.0/mods-available/xdebug.ini \
     && echo "xdebug.remote_host=$localIp" >> /etc/php/7.0/mods-available/xdebug.ini
 
-#@TODO: EDIT THE STATIC USER ID 1000 DO $UID
+COPY ./env/dev/web/docker-entrypoint.sh /usr/bin/docker-entrypoint
+RUN chmod +x /usr/bin/docker-entrypoint
 RUN usermod -u 1000 www-data
+
+WORKDIR /var/www/html
 
 COPY $fileConf /etc/apache2/sites-available/000-default.conf
 
 # Configure localhost in Apache
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
-
 RUN a2enmod rewrite
 
 # Define default command
-CMD ["apachectl", "-D", "FOREGROUND"]
+CMD ["docker-entrypoint"]
